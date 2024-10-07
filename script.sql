@@ -6,3 +6,11 @@ create table animal(
   nome_cientifico varchar(60) NOT NULL,
   habitos_noturnos LONGTEXT NOT NULL
 )
+
+-- Continuando a aula 
+CREATE table avaliacao(
+   id int primary key auto_increment,
+   avaliacao text not null,
+   polaridade float not null
+);
+select * from avaliacao;
