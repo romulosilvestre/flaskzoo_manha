@@ -99,10 +99,14 @@ def cadastrar_avaliacao():
      # passo 1 - pegar do HTML
     texto = request.form['texto']
     # passo 2 - pegar a polaridade
- 
-    blob = TextBlob(texto)
-    polaridade = blob.sentiment.polarity
-    avaliacao = Avaliacao(avaliacao=texto,polaridade=polaridade)
+
+    # tradução português para inglês
+    blob_pt = TextBlob(texto)
+    texto_traduzido = blob_pt.translate(from_lang='pt',to='en')
+    # passando texto traduzido
+    blob_en = TextBlob(str(texto_traduzido))
+    polaridade = blob_en.sentiment.polarity
+    avaliacao = Avaliacao(avaliacao=texto_traduzido,polaridade=polaridade)
     try:
        
         sessao_db_cl.add(avaliacao)
