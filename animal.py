@@ -6,3 +6,15 @@ class Animal:
         self.nome_cientifico = nome_cientifico
         self.habitos_noturnos = habitos_noturnos
 
+
+
+
+
+
+
+
+
+
+
+
+

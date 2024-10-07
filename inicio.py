@@ -6,7 +6,11 @@ import urllib.parse
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.automap import automap_base
 from animal import Animal
+from avaliacao import Avaliacao
 from sqlalchemy.orm import sessionmaker
+from googletrans import Translator
+from textblob import TextBlob
+
 # definindo objeto flask
 app = Flask(__name__)
 
@@ -18,7 +22,7 @@ app.secret_key = "df6e83eb7983f75b2561c875cbebc40ab9900624b22c6040f5831ecd6faaea
 # =========================================
 #              info do bd
 user = 'root'
-password = urllib.parse.quote_plus('senac')
+password = urllib.parse.quote_plus('senai@123')
 host = 'localhost'
 database = 'zooflask'
 # ==========================================
@@ -42,24 +46,23 @@ metadata = MetaData()
 metadata.reflect(engine)
 
 """
--- Cria uma classe base que vai mapear 
--- Automaticamente as tabelas do banco de dados 
+-- Cria uma classe base que vai mapear Automaticamente as tabelas do banco de dados 
 -- Que estão descritas no objeto metadata.
 
 """
 Base = automap_base(metadata=metadata) # definindo a classe
 
 """
---Esse método realiza o mapeamento das tabelas para classes Python, 
+ 
 --Gera uma classe para cada tabela 
---Pode ser usada para interagir com os dados diretamente.
+
 """
 Base.prepare() # mapeando
 
 
 # Ligando com a classe
 Animal =  Base.classes.animal
-
+Avaliacao = Base.classes.avaliacao
 # Criar a sessão do SQLAlchemy
 Session = sessionmaker(bind=engine)
 
@@ -70,10 +73,12 @@ def pagina_inicial():
 
 @app.route('/novoanimal', methods=['POST','GET'])
 def inserir_animal():
+    
     session_db = Session()  # Criar uma nova sessão
     nome_popular = request.form['nome_popular']
     nome_cientifico = request.form['nome_cientifico']
     habitos_noturnos = request.form['habitos_noturnos']
+    # erro
     animal = Animal(nome_popular=nome_popular,
                     nome_cientifico=nome_cientifico,
                     habitos_noturnos=habitos_noturnos) 
@@ -86,6 +91,31 @@ def inserir_animal():
         session_db.close()
 
     return redirect(url_for('pagina_inicial'))
+
+@app.route('/cadastraravaliacao',methods=['POST','GET'])
+def cadastrar_avaliacao():
+    # verificar inserção no banco 
+    sessao_db_cl = Session()
+     # passo 1 - pegar do HTML
+    texto = request.form['texto']
+    # passo 2 - pegar a polaridade
+ 
+    blob = TextBlob(texto)
+    polaridade = blob.sentiment.polarity
+    avaliacao = Avaliacao(avaliacao=texto,polaridade=polaridade)
+    try:
+       
+        sessao_db_cl.add(avaliacao)
+        sessao_db_cl.commit()
+    except:
+        sessao_db_cl.rollback()
+    finally:
+        sessao_db_cl.close()
+    return redirect(url_for('mostrar_avaliacao'))
+
+@app.route("/avaliacao")
+def mostrar_avaliacao():
+    return render_template('avaliacao.html')
 
 # definindo com o programa principal 
 if __name__ == "__main__":
