@@ -121,6 +121,11 @@ def cadastrar_avaliacao():
 def mostrar_avaliacao():
     return render_template('avaliacao.html')
 
+
+@app.route("/listaravaliacao")
+def listar_avaliacao():
+    return render_template("listaravaliacao.html")
+
 # definindo com o programa principal 
 if __name__ == "__main__":
     app.run(debug=True)
